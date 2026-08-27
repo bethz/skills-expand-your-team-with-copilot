@@ -571,6 +571,56 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
+    const shareText = `Check out ${name} at Mergington High School: ${formattedSchedule}`;
+    const shareUrl = window.location.href;
+    const shareLinks = [
+      {
+        label: "Facebook",
+        url: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+          shareUrl
+        )}`,
+      },
+      {
+        label: "X",
+        url: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          shareText
+        )}&url=${encodeURIComponent(shareUrl)}`,
+      },
+    ];
+    const shareControls = document.createElement("div");
+    shareControls.className = "share-controls";
+    shareControls.setAttribute("aria-label", `Share ${name}`);
+    shareControls.innerHTML = "<span>Share:</span>";
+
+    shareLinks.forEach(({ label, url }) => {
+      const shareLink = document.createElement("a");
+      shareLink.href = url;
+      shareLink.target = "_blank";
+      shareLink.rel = "noopener noreferrer";
+      shareLink.textContent = label;
+      shareLink.setAttribute("aria-label", `Share ${name} on ${label}`);
+      shareControls.appendChild(shareLink);
+    });
+
+    const copyLinkButton = document.createElement("button");
+    copyLinkButton.type = "button";
+    copyLinkButton.textContent = "Copy link";
+    copyLinkButton.setAttribute("aria-label", `Copy a link to ${name}`);
+    copyLinkButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        copyLinkButton.textContent = "Copied!";
+        setTimeout(() => {
+          copyLinkButton.textContent = "Copy link";
+        }, 2000);
+      } catch (error) {
+        console.error("Unable to copy activity link:", error);
+        showMessage("Unable to copy the link. Please copy it from the address bar.", "error");
+      }
+    });
+    shareControls.appendChild(copyLinkButton);
+    activityCard.querySelector(".activity-card-actions").before(shareControls);
+
     // Add click handlers for delete buttons
     const deleteButtons = activityCard.querySelectorAll(".delete-participant");
     deleteButtons.forEach((button) => {
